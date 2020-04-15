@@ -170,7 +170,7 @@
 							   //mpptfunction(0);
 					           getInverterPowerChartData( site_id, cdate );
 					           getInverterEnergyChartData(site_id, cdate);
-					           getInverterStringChartData(site_id);
+					           getInverterStringChartData(site_id,cdate);
 							   getAcvoltageVsCurrentChartData(site_id, cdate );
 					           //console.log("data");
 					           //console.log(data);
@@ -321,12 +321,12 @@
 
          }
 				 
-	function getInverterStringChartData(site_Id) {
+	function getInverterStringChartData(site_Id,recDate) {
 
 	           // send it out
 	           let xhr = new XMLHttpRequest();
 			   
-	           let url = 'http://13.233.236.200:5000/dcvoltagevscurrentplot/?site_id='+site_Id+'&date=2020-04-13';
+	           let url = 'http://13.233.236.200:5000/dcvoltagevscurrentplot/?site_id='+site_Id+'&date='+recDate;
 	           console.log(url);
 	           xhr.open("GET", url);
 	           xhr.send();
