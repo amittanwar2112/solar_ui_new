@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>inverter</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+        <script src="vendor/chart.js/Chart.min.js"></script>
+        <!-- Core plugin JavaScript-->
+        <script src="js/login.js"></script>
+        <script>
+         $(document).ready(function() {
+             checkLogin2();
+         });
+        </script>
+        
+        <script>
+				 // global varibale to store data
+	       var data = null;
+			   var selecteddate =0;
+			   
+         var siteId = 0;
+         siteId = getCookie('siteId');
+         var recordDate = null;
+         var invertersPowerArr = {};
+         var invertersEnergyArr = {};
+		 var invertersCurrentArr = {};
+		 var invertersVoltageArr = {};
+		 var invertersacCurrentArr = {};
+	     var invertersacVoltageArr = {};
+         var invPowerTs = [];
+		 var invacTs =[];
+         var invEnergyTs = [];
+		 var invStringTs = [];
+         var splitpowertime=[];
+         var splitenergytime=[];
+         var inverterList = [];
+         var inverterDataStore = null;
+         var index=0;
+		 var mppt_index=0;
+		 var mpptcount={};
+				 
+				 
+				 
+				 // function to get format date//
+         function formatDate(date) {
+
+
+             var day = ("0" + date.getDate()).slice(-2);
+             var monthIndex = ("0"+(date.getMonth()+1)).slice(-2);
+             
+             var year = date.getFullYear();
+
+             return year + '-' + monthIndex + '-' + day;
+         }
+				 // gobal variable to stor new date
+         // recordDate=formatDate(new Date());
+         //console.log(recordDate);
+				 
+         //console.log(formatDate(new Date("03/02/2020")));
+				 
+				 // function to get ac parameter	//	
+				 function myAcParameter(y) {
+
+				     var   j, x = "";
+					   var k=0;
+					   document.getElementById("tabledata1").innerHTML;
+					   for (j in data[y].ac_volt) {
+					       //console.log(data[y].ac_volt[j]);
+					       if(k==0)
+					       {
+                     x += "<tr><td>" +"R"+ "</td>"+"<td>"+ data[y].ac_volt[j] + "</td>" + "<td>"+ data[y].ac_cur[j] + "</td>" + "<td>"+ data[y].ac_power[j] + "</td></tr>" ;
+                 }
+					       if(k==1)
+					       {
+                     x += "<tr><td>" +"Y"+ "</td>"+"<td>"+ data[y].ac_volt[j] + "</td>" + "<td>"+ data[y].ac_cur[j] + "</td>" + "<td>"+ data[y].ac_power[j] + "</td></tr>" ;
+                 }
+					       if(k==2)
+					       {
+                     x += "<tr><td>" +"B"+ "</td>"+"<td>"+ data[y].ac_volt[j] + "</td>" + "<td>"+ data[y].ac_cur[j] + "</td>" + "<td>"+ data[y].ac_power[j] + "</td></tr>" ;
+                 }	
+							   
+							   k++  
+					   }
+						 
+					   document.getElementById("tabledata1").innerHTML = x;	
+	           
+
+				 }
+				 
+				 
+				 // function to get genral parameter
+				 function myGParameter(y) {
+
+				     var   a,x,y,z,b = "";
+					   var k=0;
+					   document.getElementById("pf").innerHTML;
+					   //console.log(data[y].pf);
+					   
+						 x =  data[y].pf ;
+					   c =  data[y].app_power ; 
+						 z = data[y].total_acp;
+						 a = data[y].react_power ;
+						 b = data[y].ac_freq[0] ;
+					   document.getElementById("pf").innerHTML = x;
+						 document.getElementById("ap").innerHTML = c;
+						 document.getElementById("activep").innerHTML = z;
+						 document.getElementById("rp").innerHTML = a;
+						 document.getElementById("frequency").innerHTML = b;
+					   
+	           
+
+				 }
+				 
+				 
+				 // function to get dc parameter
+				 function myDcParameter(y) {
+
+				     var   j, x = "";
+					   
+					   document.getElementById("tabledata2").innerHTML;
+					   //console.log(data[y].dc_volt);
+					   //let k =mpptcount.mppt[y];
+					   for(let i=0;i<data[y].dc_volt.length;i++){
+							
+						 x += "<tr><td>" +"MPPT"+ (i+1)+ "</td>"+"<td>"+ data[y].dc_volt[i] + "</td>" + "<td>"+ data[y].dc_cur[i] + "</td>" + "<td>"+ data[y].dc_power[i] + "</td></tr>" ;
+							   
+					   }
+					   document.getElementById("tabledata2").innerHTML = x;
+						 
+				 }
+				 
+				 
+				 // function to call all the function
+				 function globalfunction(y){
+				     
+				     //console.log(y);
+				     //console.log("Data");
+				     //console.log(data);
+                     myDcParameter(y);
+					   myGParameter(y);
+					   myAcParameter(y);
+					   drawInverterPower(y);
+					   index=y;
+					   //console.log(index);
+					   console.log("selected inverter");
+					   console.log(inverterList[y]);
+					   $("#inverter_selection").text(inverterList[y]);
+					   
+					   //drawInverterString(y);
+					   //drawInverterEnergy(y)
+					   
+				 }
+
+
+				 
+				 //function to request wit argument as site id and date//
+				 function request(cdate,site_id){
+					   
+					   //console.log('populating inverter data');
+			       var xmlhttp1 = new XMLHttpRequest();
+				     xmlhttp1.onreadystatechange = function() {
+				         if (this.readyState == 4 && this.status == 200) {
+					           myObj1 = JSON.parse(this.responseText);
+					           data = myObj1;
+					           globalfunction(0);
+							   //mpptfunction(0);
+					           getInverterPowerChartData( site_id, cdate );
+					           getInverterEnergyChartData(site_id, cdate);
+					           getInverterStringChartData(site_id);
+							   getAcvoltageVsCurrentChartData(site_id, cdate );
+					           //console.log("data");
+					           //console.log(data);
+					           
+					           
+					           
+				         }
+				     };
+					   let url ='http://13.233.236.200:5000/inverters/?site_id='+site_id+'&date='+cdate;
+						 console.log(url)
+				     xmlhttp1.open("GET", url,true);
+				     xmlhttp1.send();
+					   
+				 }
+         /*					
+            function Request( site_Id, record_Date ) {
+
+            // send it out
+            let xhr = new XMLHttpRequest();
+            let url = 'http://13.233.236.200:5000/inverters/?site_id='+site_Id+'&date='+record_Date;
+            console.log(url);
+            xhr.open("GET", url);
+            xhr.send();
+
+            xhr.onload = () => populateRequestData(xhr.response);
+            }
+
+            function populateRequestData(chartDataStr){
+
+            data = JSON.parse(chartDataStr);
+            console.log("data");
+            console.log(data);
+            globalfunction(0);
+            getInverterPowerChartData( siteId, recordDate );
+            getInverterEnergyChartData(siteId, recordDate);
+
+
+            }
+          */					
+				 
+				 
+         function getInverterPowerChartData( site_Id, recor_dDate ) {
+
+             // send it out
+             let xhr = new XMLHttpRequest();
+             let url = 'http://13.233.236.200:5000/powergraph/?site_id='+site_Id+'&date='+recor_dDate;
+             console.log(url);
+             xhr.open("GET", url);
+             xhr.send();
+
+             xhr.onload = () => populateInvertersPower(xhr.response);
+         }
+
+         function getInverterEnergyChartData( site_Id, record_Date ) {
+
+	           // send it out
+	           let xhr = new XMLHttpRequest();
+	           let url = 'http://13.233.236.200:5000/Energygraph/?site_id='+site_Id+'&date='+record_Date;
+	           console.log(url);
+	           xhr.open("GET", url);
+	           xhr.send();
+
+	           xhr.onload = () => populateInvertersEnergy(xhr.response);
+         }
+
+
+         function populateInvertersEnergy(chartDataStr) {
+
+		         let dummyinvdata = {
+			           DLT01_pwr: [30.0, 33.2,30,45,28],
+			           DLT02_pwr: [43.4, 34.6,25,34,50],
+			           DLT01_ts: ["14:00", "14:05","14:10","14:20","14:30"],
+			           DLT02_ts:["14:00", "14:05","14:10","14:20","14:30"]
+			       };
+
+	           let chartData = JSON.parse( chartDataStr );
+	           //let chartData = dummyinvdata;
+	           //console.log()
+		         inverterList=[];
+		         invertersEnergyArr={};
+		         invEnergyTs=[];
+	           for( let key in chartData ) {
+		             let splitKey = key.split("_");
+		             if(splitKey[1] === "tenergy") {
+				             inverterList.push(splitKey[0]);
+				             invertersEnergyArr[splitKey[0]] = chartData[key];
+				         } else if(splitKey[1] === "ts") {
+						         invEnergyTs = chartData[key];
+						     }
+		             
+		         }
+	           
+	           for(let i in invEnergyTs){
+	               
+	               splitenergytime[i] = invEnergyTs[i].slice(10);
+	               
+	           }
+	           
+	           //drawInverterEnergy(index) 
+
+         }
+
+
+
+    function populateInvertersPower(chartDataStr) {
+
+	           let dummyinvdata = {
+                 DLT01_pwr: [30.0, 33.2,30,45,28],
+                 DLT02_pwr: [43.4, 34.6,25,34,50],
+                 DLT01_ts: ["14:00", "14:05","14:10","14:20","14:30"],
+                 DLT02_ts:["14:00", "14:05","14:10","14:20","14:30"]
+             };
+             
+             let chartData = JSON.parse( chartDataStr );
+             //let chartData = dummyinvdata;
+	           //console.log("chartData");
+             //console.log(chartData);
+		         inverterList=[];
+		         invertersPowerArr={};
+		         invPowerTs=[];
+             for( let key in chartData ) {
+                 let splitKey = key.split("_");
+                 if(splitKey[1] === "pwr") {
+                     inverterList.push(splitKey[0]);
+                     invertersPowerArr[splitKey[0]] = chartData[key];
+                 } else if(splitKey[1] === "ts") {
+                     invPowerTs = chartData[key];
+                 }
+                 //console.log(chartData[key]);
+             }
+
+             let selectHtml = "";
+             for( idx in inverterList ) {
+                 selectHtml += "<li  ><a class='dropdown-item' id='inv' type='button' onclick='globalfunction("+ idx +")' name="+ idx +">" +inverterList[idx]+ "</a></li>"  ;
+             }
+	           
+             document.getElementById('inverter').innerHTML = selectHtml;
+	           
+	           //console.log("inverter list");
+	           //console.log(selectHtml);
+
+	           for(let i in invPowerTs){
+	               
+	               splitpowertime[i] = invPowerTs[i].slice(10);
+	               
+	           }
+	           drawInverterPower(index);
+
+         }
+				 
+	function getInverterStringChartData(site_Id) {
+
+	           // send it out
+	           let xhr = new XMLHttpRequest();
+			   
+	           let url = 'http://13.233.236.200:5000/dcvoltagevscurrentplot/?site_id='+site_Id+'&date=2020-04-13';
+	           console.log(url);
+	           xhr.open("GET", url);
+	           xhr.send();
+
+	           xhr.onload = () => populateInvertersString(xhr.response);
+         }
+		 
+				 
+	function populateInvertersString(chartDataStr){
+		
+		
+		let StringchartData = JSON.parse( chartDataStr );
+		//console.log("string data");
+		//console.log(StringchartData);
+		invStringTs =[];
+		invertersCurrentArr = {};
+	    invertersVoltageArr = {};
+		mpptcount={};
+             for( let key in StringchartData ) {
+                 let splitKey = key.split("_");
+                 if(splitKey[1] === "dcvoltage") {
+                     //inverterList.push(splitKey[0]);
+                     invertersVoltageArr[splitKey[0]] = StringchartData[key];
+                 } else if(splitKey[1] === "ts") {
+                     invStringTs = StringchartData[key];
+                 } else if(splitKey[1] === "dccurrent"){
+				  invertersCurrentArr[splitKey[0]] = StringchartData[key];
+				 } else if(splitKey[1] === "count"){
+				  mpptcount[splitKey[0]] = StringchartData[key];
+				 }
+				 
+                 //console.log(chartData[key]);
+             }
+			 
+			//console.log("mpptcount");
+			let mpps = [];
+			let value =[];
+			//console.log(mpptcount.mppt);
+			 
+			 for(let i in mpptcount.mppt){
+			 value.push(mpptcount.mppt[i])
+			 } 
+			 console.log("invertersCurrentArr")
+			 console.log(invertersCurrentArr);
+			
+			for(let i in invStringTs){ 
+	             invStringTs[i] = invStringTs[i].slice(10);  
+	           }
+
+	           
+		}	
+
+
+function mpptfunction(y){
+
+mppt_index=y;
+console.log("mppt_index");	
+console.log(mppt_index);
+drawCurrentVsVoltagePlant(index,mppt_index);		
+}
+
+
+
+function getAcvoltageVsCurrentChartData( siteId, recDate ) {
+    console.log("getting chart data");
+    // send it out
+    let xhr = new XMLHttpRequest();
+	
+    xhr.open("GET", "http://13.233.236.200:5000/acvoltagevscurrentplot/?site_id="+siteId+"&date="+recDate);
+	console.log("http://13.233.236.200:5000/acvoltagevscurrentplot/?site_id="+siteId+"&date="+recDate);
+    xhr.send();
+
+    xhr.onload = () => drawAcvoltageVsCurrentPlant(xhr.response);
+
+}
+
+function drawAcvoltageVsCurrentPlant(chartDataStr) {
+		let StringchartData = JSON.parse( chartDataStr );
+		//console.log("string data");
+		//console.log(StringchartData);
+		invacTs =[];
+		invertersacCurrentArr = {};
+	    invertersacVoltageArr = {};
+             for( let key in StringchartData ) {
+                 let splitKey = key.split("_");
+                 if(splitKey[1] === "accurrent") {
+                     //inverterList.push(splitKey[0]);
+                     invertersacVoltageArr[splitKey[0]] = StringchartData[key];
+                 } else if(splitKey[1] === "ts") {
+                     invacTs = StringchartData[key];
+                 } else if(splitKey[1] === "acvoltage"){
+				  invertersacCurrentArr[splitKey[0]] = StringchartData[key];
+				 } 
+				 
+				 
+                 //console.log(chartData[key]);
+             }
+
+			for(let i in invacTs){ 
+	             invacTs[i] = invacTs[i].slice(10);  
+	           }
+				   
+}
+		
+				 
+				 
+				 
+	       
+         
+         
+        </script>
+        
+    </head>
+    <body>
+
+
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="gispage.html" style="color:#ff0000;  font-size:200%; font-family:terminator">WHIRLYBIRD</a>
+                </div>
+                <ul class="nav navbar-nav" style="font-size:17px;">
+                    <li><a href="index.html" >DASHBOARD</a></li>
+                    <li><a href="report/report.html">REPORT</a></li>
+					<li><a href="calendar/calender.html">CALENDAR</a></li>
+                    <li><a href="alarm.html">ALARM</a></li>
+	                  <li><a href="inverter.html">INVERTER</a></li>
+                </ul>
+	              <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="#" onclick="logout()" style="color:#0047b3"><span class="glyphicon glyphicon-log-in" style="color:#ffffff"></span> Logout</a></li>
+                </ul>
+                <form class="navbar-form navbar-left" action="/action_page.php">
+                    
+                </form>
+            </div>
+        </nav>
+
+        <!-- these container contain inverter selection date selection -->
+        <div class="container-fluid" >
+            <div class="row">
+                <!-- inverter -->
+                <div class="col-sm-4 header_margin" style="background-color:lavender;height: 80px">
+
+		                <!-- inverter selection -->
+	  	              <div class="dropdown" style="padding:20px;">
+			                  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style="font-size:20px" id="inverter_selection">Inverter Selection
+			                      <span class="caret"></span></button>
+			                  <ul class="dropdown-menu" id="inverter" >
+				                    
+			                  </ul>
+		                </div>
+	              </div>
+	              
+                <div class="col-sm-4" style="background-color:lavender;height: 80px;text-align:right">
+	                  
+	                  
+	              </div>
+	              <div class="col-sm-2" style="background-color:lavender;height: 80px;text-align:right">
+	                  <i class='fas fa-calendar-alt' style='font-size:34px;padding:20px'></i>
+	              </div>
+	              <div class="col-sm-2" style="background-color:lavender;height: 80px;text-align:left">
+	                  <div class="row"> 
+	                      <div class="col-sm-12" style="background-color:lavender;height: 80px;text-align:left;padding:18px">
+	                          <input type="date" id="mydate"   value="2020-02-27" style="font-size:20px">
+	                      </div>
+	                  </div>
+	              </div>
+
+            </div>
+        </div>
+
+
+
+
+
+
+
+        <!-- these container contain chart all the tables -->
+        <div class="container-fluid"> 
+            <div class ="row">
+                <!-- column contain all the chart details -->
+                <div class="col-lg-8 header_margin" style="padding:20px">
+                    <!-- these row contain dropdown to select energy chart or power chart -->
+                    <div class="row">
+                        
+                        <div class="col-lg-5 header_margin" style="background-color: #1ac6ff ;height:63px   " >
+                            <h2 class="m-0 font-weight-bold " id="selection">Power</h2>
+                        </div>
+					 <div class="col-lg-3 header_margin" style="background-color: #1ac6ff ; padding:10px;text-align:right" >	
+					   <div class="dropdown" style="padding:0px;" >
+			                  <button id="MPPT" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style="font-size:20px;visibility:hidden;" id="inverter_selection">MPPT
+			                      <span class="caret"></span></button>
+			                  <ul class="dropdown-menu" id="MS" >
+				                    
+			                  </ul>
+		                </div>
+					 </div>
+                        <div class="col-lg-4 header_margin" style="background-color: #1ac6ff ; padding:10px;text-align:right" >
+                            
+			                      <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style='font-size:20px'>
+                                    <i class='fas fa-bars'></i></button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li><a href="#" id="power">Power</a></li>
+                                    <li><a href="#" id="energy">Energy</a></li>
+				                    <li><a href="#" id="string">String</a></li>
+									<li><a href="#" id="dcvolt">Dc Voltage vs Dc Current</a></li>
+									<li><a href="#" id="Voltage">AC Voltage vs AC Current</a></li> 
+                                    
+                                </ul>
+                            </div>
+	                      </div>
+                        <!-- chart -->
+                        <div class="chart-area" style="height:342px;" id="dash_chart_div">
+                            <canvas id="dash_chart"></canvas>
+                        </div>
+                        
+                    </div>
+                </div>  
+                
+                <!-- contains 2 table  in  2 row  parameter and ac parameter table -->
+                <div class="col-lg-4 header_margin" style="top: 20px">
+                    <div class="row">
+		                    <!-- parameter table -->
+                        <table class="table table-bordered" align="right">
+                            <thead >
+                                <tr>
+                                    <th class="info" colspan="2" style="text-align:center">Power Parameter</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody id="tabledata">
+                                <tr>
+                                    <td style="text-align:center;color:black;font-weight:bold;">Power Factor</td>
+                                    <td style="text-align:center" id="pf"></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td style="text-align:center;color:black;font-weight: bold;">Apparent Power</td>
+                                    <td style="text-align:center" id="ap"></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td style="text-align:center;color:black;font-weight: bold;">Active Power</td>
+                                    <td style="text-align:center" id="activep"></td>
+                                    
+                                </tr>
+	                              <tr>
+                                    <td style="text-align:center;color:black;font-weight: bold;">Reactive Power</td>
+                                    <td style="text-align:center" id="rp"></td>
+                                    
+                                </tr>
+	                              <tr>
+                                    <td style="text-align:center;color:black;font-weight: bold;">Frequency</td>
+                                    <td style="text-align:center" id="frequency"></td>
+                                    
+                                </tr>
+	                              
+                            </tbody>
+                        </table>
+	                      
+                    </div>
+                    <div class="row">
+	                      
+	                      
+	                      <!-- ac parameter table -->
+	                      <table class="table table-bordered" align="right">
+                            <thead >
+                                <tr  class="info">
+                                    <th   style="text-align:center">Phase Type</th>
+		                                <th   style="text-align:center">Voltage</th>
+		                                <th   style="text-align:center">Current</th>
+		                                <th   style="text-align:center">Power</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody id="tabledata1">
+                                <tr>
+	                                  
+	                              </tr>
+
+	                              
+                            </tbody>
+                        </table>
+	                      
+	                      
+	                      
+                    </div>
+                </div>  
+            </div>
+            <div class="row" >
+
+
+                <div class="col-lg-8 header_margin" style="top: 20px">
+
+                </div>
+                <!-- these column contain mppt table -->
+                <div class="col-lg-4 " style="top: 20px">
+                    <table class="table table-bordered"  align="right">
+                        <thead >
+                            <tr  class="info">
+                                <th   style="text-align:center">MPPTS</th>
+		                            <th   style="text-align:center">DC Voltage</th>
+		                            <th   style="text-align:center">DC Current</th>
+		                            <th   style="text-align:center">DC Power</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody id="tabledata2">
+                            <tr>
+
+                                
+                            </tr>
+                            
+
+	                          
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+        </div>
+
+
+        <script src="js/utils-inv.js"></script>
+        <script src="js/chart-line-inv.js"></script>
+		<script src="js/chart-line-multiaxis-inv.js"></script>
+        <script src="js/chart-area-demo.js"></script>
+        <script>
+
+
+
+
+
+
+         
+         //var x = document.getElementById("td");
+         
+         
+         function inputdate(){
+					   
+             var x = document.getElementById("mydate").value;
+             //document.getElementById("demo").innerHTML = x;
+	           return x ;
+	       }
+	       selecteddate = formatDate(new Date(inputdate()));
+	       //console.log(selecteddate);
+	       //console.log(typeof selecteddate);
+	       //console.log(formatDate(new Date(selecteddate)));
+				 
+
+	       jQuery("#power").click(function(e){
+             //chartToDraw = 1;
+			 document.getElementById("MPPT").style.visibility = "hidden";
+             console.log('Power');
+	           $("#selection").text("Power");
+             drawInverterPower(index);
+         });
+   	     jQuery("#energy").click(function(e){
+             //chartToDraw = 2;
+			 document.getElementById("MPPT").style.visibility = "hidden";
+             console.log('energy');
+	           $("#selection").text("Energy");
+             drawInverterEnergy(index);
+         });
+         jQuery("#string").click(function(e){
+             //chartToDraw = 3;
+			document.getElementById("MPPT").style.visibility = "hidden";
+             console.log('string');
+	           $("#selection").text("String");
+
+            drawString(index);
+			 
+         });
+		  jQuery("#dcvolt").click(function(e){
+             //chartToDraw = 3;
+			 document.getElementById("MPPT").style.visibility = "visible";
+            
+	           $("#selection").text("Dc Voltage vs Dc Current");
+			   console.log("mppt_index");
+			   console.log(mppt_index);
+            drawCurrentVsVoltagePlant(index,mppt_index);
+			document.getElementById("selection").style.fontSize = "23px";
+			 
+         });
+		 
+		 jQuery("#Voltage").click(function(e){
+             //chartToDraw = 2;
+             //console.log('energy');
+			 document.getElementById("MPPT").style.visibility = "hidden";
+	           $("#selection").text("AC Voltage vs AC Current");
+           drawacCurrentVsVoltageGraph(index)
+		  document.getElementById("selection").style.fontSize = "23px";
+		   
+         });
+         
+   	
+		     
+	       
+	       
+         $(document).ready( function() {
+             document.getElementById("mydate").value = "";
+	           let recordDate=formatDate(new Date());
+			   //getInverterStringChartData(); 
+	           //console.log("recordDate")
+		         //console.log(recordDate);
+	           //x.style.display = "none";
+	           //getInverterPowerChartData( siteId, recordDate );
+	           //getInverterEnergyChartData(siteId, recordDate);
+			   
+	           request(recordDate,siteId);
+			   console.log("inverterList");
+			   //console.log(inverterList[0]);
+			   //$("#inverter_selection").text(inverterList[0]);
+	           //globalfunction(1);
+         });
+         
+         
+         $('#mydate').change( function() {
+	     	     
+	     		   //console.log("changed date");
+	     		   
+	           //console.log($('#mydate').val());
+	           let recordDate = $('#mydate').val();
+			   console.log(recordDate)
+	            //recordDate = formatDate(recordDate);
+	           //getInverterPowerChartData( siteId, recordDate );
+	     	     //getInverterEnergyChartData(siteId, recordDate);
+	     		   //console.log("invertersPowerArr");
+	     		   
+	     		   //console.log(invertersPowerArr);
+	     		   request(recordDate,siteId);
+				    
+	     		   //globalfunction(0);
+	           
+	       });
+		     
+	       
+        </script>
+    </body>
+</html>

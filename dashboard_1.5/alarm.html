@@ -1,0 +1,257 @@
+<div class="container-fluid">
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>alarm</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css">
+  <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>	
+  <script>
+  var siteId=1;
+			function alarmdata(start_date,end_date,siteid) {
+			$("#table").dataTable().fnDestroy();
+			let xhr = new XMLHttpRequest();
+			let url = 'http://13.233.236.200:5000/report?site_id='+siteid+'&startdate='+start_date+'&enddate='+end_date;
+			console.log(url);
+			xhr.open("GET", url);
+			xhr.send();
+
+			xhr.onload = () => populateData(xhr.response);
+			
+			
+		}
+		
+			function alarmdata1(start_date,end_date,siteid) {
+			$("#table").dataTable().fnDestroy();
+			let xhr = new XMLHttpRequest();
+			let url = 'http://13.233.236.200:5000/solaralarms?site_id='+siteid+'&startdate='+start_date+'&enddate='+end_date;
+			console.log(url);
+			xhr.open("GET", url);
+			xhr.send();
+
+			xhr.onload = () => populateData1(xhr.response);
+			
+			
+		}
+		
+		function formatDate(date) {
+				let day = ("0" + date.getDate()).slice(-2);
+				let monthIndex = ("0"+(date.getMonth()+1)).slice(-2);
+
+				 let year = date.getFullYear();
+
+				return year + '-' + monthIndex + '-' + day;
+			}	
+		
+		function populateData(chartDataStr) {
+			 data = JSON.parse( chartDataStr );
+			 console.log(data);
+			 //tabledata();
+		}
+		function populateData1(chartDataStr) {
+			 data1 = JSON.parse( chartDataStr );
+			 console.log(data1);
+			 tabledata1();
+		}
+		function tabledata(){
+			let  j, x = "";		  
+			for(j in data.timestamp){
+				x += "<tr><td>" 
+					+ data.site_Name 
+					+ "</td>" 
+					; 						
+	  	   }  
+		   document.getElementById("tabledata").innerHTML = x;
+		   console.log(x);
+		   //initialize_datatable();
+		}
+		function tabledata1(){
+		let today = new Date();
+		console.log("new date");
+		console.log(today);
+
+		let date = today.getFullYear()+'-'+("0" + (today.getMonth()+1)).slice(-2)+'-'+("0" + today.getDate()).slice(-2);
+		let time = today.getHours() + ":" + ("0" + today.getMinutes()).slice(-2) + ":" + "00";
+		let dateTime = date+' '+time;
+			let current_time =  dateTime;
+			current_time = new Date(current_time);
+			current_time = current_time.getTime();
+			console.log(current_time);
+			let  j, x = "";	
+			if(data1!==0){
+			let s =	data1[0].open_time;
+			let inverter_time = new Date(s);
+	       inverter_time = inverter_time.getTime();
+		    let time_elapsed = (current_time-inverter_time);
+			    time_elapsed = ((time_elapsed)/3600);
+				time_elapsed = time_elapsed/1000;
+			for(j in data1){
+				x += "<tr><td>" 
+					+ "I. K. Gujral PTU" 
+					+ "</td>" 
+					+ "<td>"
+					+ data1[0].alarm_name 
+					+ "</td>" 
+					+ "<td>"
+					+ data1[0].open_time
+					+ "</td>"
+					+ "<td>"
+					+ time_elapsed 
+					+  "</td></tr>";  
+					
+							
+	  	   }  
+		   }
+		   document.getElementById("tabledata").innerHTML = x;
+		   console.log(x);
+		   //initialize_datatable();
+		}
+  </script>
+  
+</head>
+<body>
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#" style="color:#ff0000;  font-size:150%; font-family:terminator">WHIRLYBIRD</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li><a href="index.html">DASHBOARD</a></li>
+      <li><a href="report/report.html">REPORT</a></li>
+	  <li><a href="calendar/calender.html">CALENDAR</a></li>
+      <li><a href="alarm.html">ALARM</a></li>
+	  <li><a href="inverter.html">INVERTER</a></li>
+    </ul>
+	<ul class="nav navbar-nav navbar-right">
+      
+      <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+    </ul>
+    <form class="navbar-form navbar-left" action="/action_page.php">
+
+    </form>
+  </div>
+</nav>
+  
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-5 header_margin" style="background-color:lavender;height:80px">
+	 <div class="row">
+	   <div class="col-sm-12 header_margin" style="background-color:lavender;top: 20px;text-align:left">
+	    <button type="button" class="btn btn-primary far fa-file-excel" style="font-size: 15px"> Export To Excel</button>
+		
+	   </div>
+	 </div>
+	</div>
+	
+     <div class="col-sm-7" style="background-color:lavender;height: 80px">
+	  <div class="row">
+ 	    <div class="col-sm-8 header_margin" style="background-color:lavender;top: 20px;text-align:right"> 
+		 <div class="col-sm-2 header_margin" style="background-color:lavender;text-align:right">
+		        
+		 </div> 
+		 <div class="col-sm-4 header_margin" style="background-color:lavender;text-align:left">
+                <input type="date" id="startdate">
+		 </div>
+		 <div class="col-sm-1 header_margin" style="background-color:lavender;text-align:left">
+			    <h5 style="color:black;font-weight: bold;" >To</h5>
+		 </div>
+		 <div class="col-sm-5 header_margin" style="background-color:lavender;text-align:left">
+                <input type="date" id="enddate">
+		 </div>
+		 </div>
+		 <div class="col-sm-4 header_margin" style="background-color:lavender;top: 20px;text-align:right">   
+                <button type="button" class="btn btn-primary" style="font-size: 15px" id="submit">Submit</button>
+		 </div>
+	  </div>
+	
+     </div>
+   </div>
+ <div class="row">
+ 
+        <table class="table table-striped table-bordered" id="mydatatable" style="border-radius: 25px">
+    	  <thead >
+      		<tr class="info">
+        	  <th>Plant Name</th>
+        	  <th>Alarms</th>
+              <th>Generated On</th>
+			  <th>Time Elapsed(hrs)</th>
+            </tr>
+          </thead>
+		  <tbody  id="tabledata">
+            
+		  </tbody>
+        </table>
+	 
+   
+ </div>
+</div>
+<script src="utils.js"></script>
+<script>	
+
+    $(document).ready(function() {
+		//checkLogin2();
+        //siteId = getCookie('siteId');
+		console.log(siteId);
+    });
+
+      $('#mydatatable').DataTable();
+
+ //var x = document.getElementById("td");	    
+
+// Add active class to the current button (highlight it)
+$(document).ready(function(){
+  $(".navbar-nav a").click(function(){
+    $(this).tab('show');
+  });
+});
+
+   $(document).ready( function() {
+    
+		    var data = "";
+			var data1="";
+			var selecteddate =0;
+			var startdate = null;
+			var enddate = null;
+     document.getElementById("startdate").value = null;
+	 document.getElementById("enddate").value = null;
+	 //console.log(document.getElementById("enddate").value);
+     startdate="";
+	 enddate="";
+	  recordDate=formatDate(new Date());
+	   //console.log("recordDate")
+		//console.log(recordDate);
+	   //Data();
+	   
+
+   });
+
+
+ 	jQuery("#submit").click(function(e){
+	
+
+	//x.style.display = "none";
+		startdate = document.getElementById("startdate").value;
+	    enddate = document.getElementById("enddate").value;
+		console.log(startdate);
+		console.log(enddate);
+		startdate=recordDate=formatDate(new Date(startdate));
+		enddate=recordDate=formatDate(new Date(enddate));
+		
+		//alarmdata(startdate,enddate,1);
+		alarmdata1(startdate,enddate,1);
+       //console.log('submit');
+  
+      
+   });
+	
+</script>	
+
+</body>
+</html>

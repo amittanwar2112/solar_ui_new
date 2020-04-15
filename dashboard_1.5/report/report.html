@@ -1,0 +1,527 @@
+<div class="container-fluid">
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>report</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="../js/login.js"></script>
+  <script>
+
+  </script>
+   <!-- Datatables-->
+   <link rel="stylesheet" href="dataTables.bootstrap4.css">
+   <link rel="stylesheet" href="keyTable.bootstrap.css">
+   <link rel="stylesheet" href="responsive.bootstrap.css"><!-- =============== BOOTSTRAP STYLES ===============-->
+   <link rel="stylesheet" href="css/bootstrap.css" id="bscss"><!-- =============== APP STYLES ===============-->
+   <link rel="stylesheet" href="app.css" id="maincss">	
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../gispage.html" style="color:#ff0000;  font-size:200%; font-family:terminator">WHIRLYBIRD</a>
+    </div>
+    <ul class="nav navbar-nav" style="font-size:17px;">
+      <li><a href="../index.html">DASHBOARD</a></li>
+      <li><a href="report.html">REPORT</a></li>
+	  <li><a href="../calendar/calender.html">CALENDAR</a></li>
+      <li><a href="../alarm.html">ALARM</a></li>
+	  <li><a href="../inverter.html">INVERTER</a></li>
+    </ul> 
+	<ul class="nav navbar-nav navbar-right">
+      
+      <li><a href="#" onclick="logout()" style="color:#0047b3"><span class="glyphicon glyphicon-log-in" style="color:#ffffff"></span> Logout</a></li>
+    </ul>
+    <form class="navbar-form navbar-left" action="/action_page.php">
+
+    </form>
+  </div>
+</nav>
+
+  
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-4 header_margin" style="background-color:lavender;height:80px">
+	 <div class="row">
+	   <div class="col-sm-12 header_margin" style="background-color:lavender;top: 20px;text-align:left">
+	    <button type="button" class="btn btn-primary far fa-file-excel" style="font-size: 15px" id="export_to_excel"> Export To Excel</button>
+		
+	   </div>
+	 </div>
+	</div>
+	
+     <div class="col-sm-8" style="background-color:lavender;height: 80px">
+	  <div class="row">
+	    <div class="col-sm-3 header_margin" style="background-color:lavender;top: 20px">
+	   
+		
+	  	    <div class="dropdown">
+			 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"id="select" >Plant Summary Periodic
+			 <span class="caret"></span></button>
+			  <ul class="dropdown-menu">
+			    <li><a href="#" id="Periodic" >Plant Summary Periodic</a></li>
+				<li><a href="#" id="hour" >Plant Summary Hourly</a></li>
+				<li><a href="#" id="daily" >Plant Summary Daily</a></li>
+				<li><a href="#" id="weekly">Plant Summary Weekly</a></li>
+				<li><a href="#" id="monthly">Plant Summary Monthly</a></li>
+			  </ul>
+		    </div>
+		</div>
+	      <div class="col-sm-7 header_margin" style="background-color:lavender;top: 20px">
+			 <div class="row">	
+				
+					<div class="col-sm-2 header_margin" style="background-color:lavender;text-align:right">
+						
+					</div> 
+					<div class="col-sm-4 header_margin" style="background-color:lavender;text-align:left">
+						<input type="date" style="font-size:16px" id="startdate">
+					</div>
+					<div class="col-sm-1 header_margin" style="background-color:lavender;text-align:left">
+						<h5 style="color:black;font-weight: bold;" id="to">To</h5>
+					</div>
+					<div class="col-sm-5 header_margin" style="background-color:lavender;text-align:left">
+						<input type="date" style="font-size:16px" id="enddate">
+					</div>
+				
+
+	         </div>
+			</div>
+		  
+		  <div class="col-sm-2 header_margin" style="background-color:lavender;top: 20px;text-align:right">
+		    
+             <button  type="button" class="btn btn-primary" style="font-size: 15px" id="submit">Submit</button>
+		    
+		  </div>
+	  </div>
+	
+     </div>
+   </div>
+</div>
+<div class="container-fluid" >
+<div class="row">
+
+
+	 <div class="col-sm-12" id="td">
+		<table class="table table-striped table-bordered mydatatable" id="table">
+    	  <thead>
+      		<tr>
+			  <th>Plant Name</th>
+			  <th>Date/Time</th>
+        	  <th>Energy(kWh)</th>
+        	  <th>Irradiance(kW/m2)</th>
+              <th>Performance Ratio(%)</th>
+			  <th>CUF(%)</th> 
+            </tr>
+          </thead>
+		  <tbody  id="tabledata">
+            
+		  </tbody>
+         </table>
+		 </div>
+	   </div>
+	   </div>
+
+  
+<script src="utils.js"></script>
+<script>
+var x = document.getElementById("td");	
+var tabletodraw=0;
+var siteId=0;
+// Add active class to the current button (highlight it)
+$(document).ready(function(){
+  $(".navbar-nav a").click(function(){
+    $(this).tab('show');
+  });
+});
+
+
+   $(document).ready( function() {
+    
+	
+     document.getElementById("startdate").value = null;
+	 document.getElementById("enddate").value = null;
+	 //console.log(document.getElementById("enddate").value);
+     startdate="";
+	 enddate="";
+	  recordDate=formatDate(new Date());
+	   //console.log("recordDate")
+		//console.log(recordDate);
+	   //Data();
+	   x.style.display = "none";
+
+   });
+     jQuery("#Periodic").click(function(e){
+      $("#select").text("Plant Summar Periodic");
+	  tabletodraw=0;
+	  document.getElementById("enddate").style.visibility = "visible";
+	  document.getElementById("to").style.visibility = "visible";
+	});
+   	jQuery("#weekly").click(function(e){
+      $("#select").text("Plant Summary Weekly");
+	  tabletodraw=3;
+	  document.getElementById("enddate").style.visibility = "visible";
+	  document.getElementById("to").style.visibility = "visible";
+   });
+   jQuery("#daily").click(function(e){
+      $("#select").text("Plant Summary Daily");
+	  tabletodraw=2;
+	  document.getElementById("enddate").style.visibility = "visible";
+	  document.getElementById("to").style.visibility = "visible";
+   });
+   jQuery("#monthly").click(function(e){
+      $("#select").text("Plant Summary Monthly");
+	  tabletodraw=4;
+	  document.getElementById("enddate").style.visibility = "visible";
+	  document.getElementById("to").style.visibility = "visible";
+   });
+   jQuery("#hour").click(function(e){
+      $("#select").text("Plant Summary Hourly");
+	  tabletodraw=1;
+	  document.getElementById("enddate").style.visibility = "hidden";
+	  document.getElementById("to").style.visibility = "hidden";
+   });   
+   
+ 	jQuery("#submit").click(function(e){
+	
+
+	x.style.display = "none";
+		startdate = document.getElementById("startdate").value;
+	    enddate = document.getElementById("enddate").value;
+		console.log(startdate);
+		console.log(enddate);
+		startdate=recordDate=formatDate(new Date(startdate));
+		enddate=recordDate=formatDate(new Date(enddate));
+		if(tabletodraw==0){
+		
+		Periodic(startdate,enddate,siteId);
+		}
+		if(tabletodraw==1){
+		Datahourly(startdate,siteId);
+		}
+		if(tabletodraw==2){
+		Datadaily(startdate,enddate,siteId);
+		}
+		if(tabletodraw==3){
+		Dataweekly(startdate,enddate,siteId);
+		}
+	    if(tabletodraw==4){
+		Datamonthly(startdate,enddate,siteId);
+		}
+      
+	  
+       console.log('submit');
+	   if(startdate!="" & enddate!=""){
+	   console.log('not null')
+	   x.style.display = "inline-table";
+	   }
+	   else{
+	   x.style.display = "none";
+       }   
+      
+   });  
+ 
+</script>	
+
+  <!-- Datatables-->
+   <script src="jquery.dataTables.js"></script>
+   <script src="dataTables.bootstrap4.js"></script>
+   <script src="dataTables.buttons.js"></script>
+   <script src="buttons.bootstrap.js"></script>
+   <script src="buttons.colVis.js"></script>
+   <script src="buttons.flash.js"></script>
+   <script src="buttons.html5.js"></script>
+   <script src="buttons.print.js"></script>
+   <script src="dataTables.keyTable.js"></script>
+   <script src="dataTables.responsive.js"></script>
+   <script src="responsive.bootstrap.js"></script>
+   <script src="jszip.js"></script>
+   <script src="pdfmake.js"></script>
+   <script src="vfs_fonts.js"></script><!-- =============== APP SCRIPTS ===============-->
+   <script src="app.js"></script>
+	 <script>
+    $(document).ready(function() {
+		checkLogin2();
+        siteId = getCookie('siteId');
+		console.log(siteId);
+    });
+   </script>
+	<script>
+		
+		function initialize_datatable(){
+			$('#table').DataTable( {
+			   paging:   false,
+			   info:     false,
+				dom: 'Bfrtip',
+				searching: false,
+				buttons: [
+					'excelHtml5',
+				],
+			} );
+			
+			// Hide default data table buttons
+			$(".dt-buttons").hide();
+			
+			// On click our export to excel button click on data table export button
+			$("#export_to_excel").on('click', function(){
+				$(".buttons-excel").click();
+			});
+		}
+		
+		
+		function formatDate(date) {
+				let day = ("0" + date.getDate()).slice(-2);
+				let monthIndex = ("0"+(date.getMonth()+1)).slice(-2);
+
+				 let year = date.getFullYear();
+
+				return year + '-' + monthIndex + '-' + day;
+			}					   
+
+	function Datamonthly(start_date,end_date,siteid) {
+			$("#table").dataTable().fnDestroy();
+			let xhr = new XMLHttpRequest();
+			let url = 'http://13.233.236.200:5000/monthlydata/?site_id='+siteid+'&sdate='+start_date+'&edate='+end_date;
+			console.log(url);
+			xhr.open("GET", url);
+			xhr.send();
+
+			xhr.onload = () => populateDatamonthly(xhr.response);
+			
+			
+		}
+	function Dataweekly(start_date,end_date,siteid) {
+			$("#table").dataTable().fnDestroy();
+			let xhr = new XMLHttpRequest();
+			let url = 'http://13.233.236.200:5000/weeklyreport/?site_id='+siteid+'&sdate='+start_date+'&edate='+end_date;
+			console.log(url);
+			xhr.open("GET", url);
+			xhr.send();
+
+			xhr.onload = () => populateDataweekly(xhr.response);
+			
+			
+		}
+	function Periodic(start_date,end_date,siteid) {
+			$("#table").dataTable().fnDestroy();
+			let xhr = new XMLHttpRequest();
+			let url = 'http://13.233.236.200:5000/report?site_id='+siteid+'&startdate='+start_date+'&enddate='+end_date;
+			console.log(url);
+			xhr.open("GET", url);
+			xhr.send();
+
+			xhr.onload = () => populateData(xhr.response);
+			
+			
+		}
+	function Datadaily(start_date,end_date,siteid) {
+			$("#table").dataTable().fnDestroy();
+			let xhr = new XMLHttpRequest();
+			let url = 'http://13.233.236.200:5000/dailyreport/?site_id='+siteid+'&sdate='+start_date+'&edate='+end_date;
+			console.log(url);
+			xhr.open("GET", url);
+			xhr.send();
+
+			xhr.onload = () => populateDatadaily(xhr.response);
+			
+			
+		}
+
+
+		function Datahourly(start_date,siteid) {
+			$("#table").dataTable().fnDestroy();
+			let xhr = new XMLHttpRequest();
+			//http://13.233.236.200:5000/plantreport?site_id=1&sdate=2020-03-25&edate=2020-03-26
+			let url = 'http://13.233.236.200:5000/hourlyreport/?site_id='+siteid+'&date='+start_date;
+			console.log(url);
+			xhr.open("GET", url);
+			xhr.send();
+
+			xhr.onload = () => populateDatahourly(xhr.response);
+			
+			
+		}
+		
+		function populateData(chartDataStr) {
+			 data = JSON.parse( chartDataStr );
+			// console.log(data);
+			 tabledata();
+		}	
+		function populateDatahourly(chartDataStr) {
+			 datahourly = JSON.parse( chartDataStr );
+			 console.log(datahourly);
+			 tabledatahourly();
+		}
+	    function populateDataweekly(chartDataStr) {
+			 dataweekly = JSON.parse( chartDataStr );
+			 console.log("dataweekly")
+			 console.log(dataweekly);
+			 tabledataweekly();
+		}
+		function populateDatadaily(chartDataStr) {
+			 datadaily = JSON.parse( chartDataStr );
+			 console.log("dataweekly")
+			 console.log(datadaily);
+			 tabledatadaily();
+		}
+		function populateDatamonthly(chartDataStr) {
+			 datamonthly = JSON.parse( chartDataStr );
+			 console.log("datamonthly")
+			 console.log(datamonthly);
+			 tabledatamonthly();
+		}
+		
+		
+		function tabledata(){
+			let  j, x = "";		  
+			for(j in data.timestamp){
+				x += "<tr><td>" 
+					+ data.site_Name 
+					+ "</td>" 
+					+ "<td>"
+					+ data.timestamp[j] 
+					+ "</td>" 
+					+ "<td>"
+					+ data.Energy[j] 
+					+ "</td>"
+					+ "<td>"
+					+ data.Irradiance[j] 
+					+"</td>"
+					+ "<td>"
+					+ data.PR[j] 
+					+ "</td>" 
+					+ "<td>"
+					+ data.CUF[j] 
+					+  "</td></tr>"; 						
+	  	   }  
+		   document.getElementById("tabledata").innerHTML = x;
+		   console.log(x);
+		   initialize_datatable();
+		}
+		function tabledataweekly(){
+			let  j, x = "";		  
+			for(j in dataweekly.data){
+				x += "<tr><td>" 
+					+ dataweekly.site_name
+					+ "</td>" 
+					+ "<td>"
+					+ dataweekly.data[j].start_week 
+					+ "</td>" 
+					+ "<td>"
+					+ dataweekly.data[j].Energy 
+					+ "</td>"
+					+ "<td>"
+					+ dataweekly.data[j].Irradiance 
+					+"</td>"
+					+ "<td>"
+					+ dataweekly.data[j].PR 
+					+ "</td>" 
+					+ "<td>"
+					+ dataweekly.data[j].CUF 
+					+  "</td></tr>"; 						
+	  	   }  
+		   document.getElementById("tabledata").innerHTML = x;
+		   console.log(x);
+		   initialize_datatable();
+		}
+		
+		function tabledatahourly(){
+			let  j, x = "";		  
+			for(j in datahourly.data){
+				x += "<tr><td>" 
+					+ datahourly.site_name
+					+ "</td>" 
+					+ "<td>"
+					+ datahourly.data[j].start_hour 
+					+ "</td>" 
+					+ "<td>"
+					+ datahourly.data[j].Energy 
+					+ "</td>"
+					+ "<td>"
+					+ datahourly.data[j].Irradiance 
+					+"</td>"
+					+ "<td>"
+					+ datahourly.data[j].PR 
+					+ "</td>" 
+					+ "<td>"
+					+ datahourly.data[j].CUF 
+					+  "</td></tr>"; 						
+	  	   }  
+		   document.getElementById("tabledata").innerHTML = x;
+		   console.log(x);
+		   initialize_datatable();
+		}
+		function tabledatadaily(){
+			let  j, x = "";		  
+			for(j in datadaily.data){
+				x += "<tr><td>" 
+					+ datadaily.site_name
+					+ "</td>" 
+					+ "<td>"
+					+ datadaily.data[j].start_day 
+					+ "</td>" 
+					+ "<td>"
+					+ datadaily.data[j].Energy 
+					+ "</td>"
+					+ "<td>"
+					+ datadaily.data[j].Irradiance 
+					+"</td>"
+					+ "<td>"
+					+ datadaily.data[j].PR 
+					+ "</td>" 
+					+ "<td>"
+					+ datadaily.data[j].CUF 
+					+  "</td></tr>"; 						
+	  	   }  
+		   document.getElementById("tabledata").innerHTML = x;
+		   console.log(x);
+		   initialize_datatable();
+		}
+		function tabledatamonthly(){
+			let  j, x = "";		  
+			for(j in datamonthly.data){
+				x += "<tr><td>" 
+					+ datamonthly.site_name
+					+ "</td>" 
+					+ "<td>"
+					+ datamonthly.data[j].start_month 
+					+ "</td>" 
+					+ "<td>"
+					+ datamonthly.data[j].Energy 
+					+ "</td>"
+					+ "<td>"
+					+ datamonthly.data[j].Irradiance 
+					+"</td>"
+					+ "<td>"
+					+ datamonthly.data[j].PR 
+					+ "</td>" 
+					+ "<td>"
+					+ datamonthly.data[j].CUF 
+					+  "</td></tr>"; 						
+	  	   }  
+		   document.getElementById("tabledata").innerHTML = x;
+		   console.log(x);
+		   initialize_datatable();
+		}
+		
+		
+		$(document).ready(function() {
+			// initialize variables to populate datatable
+			var data = "";
+			var datahourly = "";
+			var dataweekly ="";
+			var datadaily ="";
+			var datamonthly ="";
+			var selecteddate =0;
+			var startdate = null;
+			var enddate = null;
+		} );
+	</script>
+</body>
+</html>

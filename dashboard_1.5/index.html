@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>DASHBOARD</title>
+
+  <!-- Custom fonts for this template-->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin-2.min.css" rel="stylesheet">
+  <!-- Custom styles for this page -->
+  <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+  <style>
+  </style>
+
+</head>
+
+<body id="page-top">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+	        <nav class="navbar navbar-expand-sm bg-dark navbar-dark" style="background-color: #333 !important">
+		          <!-- Brand/logo -->
+		          <a class="navbar-brand" href="#">
+			            <a class="navbar-brand" href="gispage.html" style="color:#ff0000;  font-size:150%; font-family:terminator">WHIRLYBIRD</a>
+		          </a>
+				      
+		          <!-- Links -->
+		          <ul class="navbar-nav">
+			            <li class="nav-item">
+				              <a class="nav-link" href="index.html">DASHBOARD</a>
+			            </li>
+
+			            <li class="nav-item">
+				              <a class="nav-link" href="report/report.html">REPORT</a>
+			            </li>
+						<li class="nav-item">
+				              <a class="nav-link" href="calendar/calender.html">CALENDAR</a>
+			            </li>
+			            <li class="nav-item">
+				              <a class="nav-link" href="alarm.html">ALARM</a>
+			            </li>
+			            <li class="nav-item">
+				              <a class="nav-link" href="inverter.html">INVERTERS</a>
+			            </li>
+
+		          </ul>
+
+              <ul class="nav navbar-nav ml-auto">
+                  
+                  <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i></span>Logout</a></li>
+              </ul>
+	        </nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid" style="margin-top:15px;">
+
+            <!-- Row Cards and Today Energy -->
+            <div class="row">
+
+                <!-- Container Dash Cards -->
+                <div class="col-md-5">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2" >
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Lifetime Generation</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="lifetime_gen"></div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-chart-bar" style='font-size:40px;color:#47d147'></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+							
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Installed Capacity</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="plant_capacity"></div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class='fas fa-charging-station' style='font-size:40px;color:#ffff00'></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+							
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Today's Energy</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="plant_tenergy"></div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="far fa-lightbulb" style='font-size:40px;color:#ff751a'></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-left-danger shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Current Power</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="plant_power" ></div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-bolt" style='font-size:40px;color:#33ccff'></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Container Dash Cards -->
+
+                <!-- Container Today Energy chart -->
+                <div class="col-md-7" >
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <div class="chart-bar" style="height:188px;">
+                                <canvas id="myBarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Container Today Energy chart -->
+
+            </div>
+            <!-- Row Cards and Today Energy -->
+
+            <!-- Row power chart -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Plant Chart</h6>
+                            <!-- <input class="datepicker float-right" style="text-align:right;" id="record_date" data-date-format="mm/dd/yyyy" placeholder="">-->
+                            <input type="date" id="record_date" style="text-align:right">
+                            <div class="form-group" >
+                                <select  id="inverter_select_pwr"  name="basic" placeholder="Enter email" multiple data-live-search="true" ></select>
+							</div>
+                        
+								<div class="dropdown">
+                                  <button class="btn btn-info dropdown-toggle" type="button" data-toggle="dropdown" style='font-size:15px'>
+                                  <i class='fas fa-bars'></i></button>
+                                  <ul class="dropdown-menu dropdown-menu-right">
+                                     <li style="font-size:15px"><a href="#" id="draw_ac_power">AC Power</a></li>
+                                     <li style="font-size:15px"><a href="#" id="draw_ir_acp">Irradiance vs AC Power</a></li>
+				                     <li style="font-size:15px"><a href="#" id="mppt">MPPT</a></li>
+                 
+                                  </ul>
+                                 </div>
+
+                            
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-area" style="height:382px;" id="dash_chart_div">
+                                <canvas id="dash_chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary" id="site_name" ></h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li style="color:black;font-weight: bold;" class="list-group-item">Installed Power <span style="float:right;width:150px;height:35px" class="btn btn-info"  id="plant_capacity2"></span></li>
+                                <li style="color:black;font-weight: bold;" class="list-group-item">Commissioned On <span style="float:right;width:150px;height:35px" class="btn btn-info"   id="comm_on"></span></li>
+
+                                <li style="color:black;font-weight: bold;" class="list-group-item">Irradiance <span style="float:right;width:150px;height:35px" class="btn btn-info"   id="irradiation_dash"></span></li>
+                                <li style="color:black;font-weight: bold;" class="list-group-item">Module Temperature <span style="float:right;width:150px;height:35px" class="btn btn-info"   id="module_temp_dash"></span></li>
+                                <li style="color:black;font-weight: bold;" class="list-group-item">CUF <span style="float:right;width:150px;height:35px" class="btn btn-info" id="plant_cuf"></span></li>
+								<li style="color:black;font-weight: bold;" class="list-group-item">PR <span style="float:right;width:150px;height:35px" class="btn btn-info" id="plant_pr"></span></li>
+                                <li style="color:black;font-weight: bold;" class="list-group-item">Last Update <span style="float:right;width:150px;height:35px;font-size:12px" class="btn btn-info" id="plant_last_update"></span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End row power chart -->
+
+            <!-- Row Inverter Details Table -->
+			
+<div class="container-fluid">
+  <ul class="nav nav-tabs">
+    <li class="alert alert-info " style="font-size:20px" ><a data-toggle="tab" href="#home" style="color:black;font-weight: bold;">Inverters</a></li>
+    <li class="alert alert-info" style="font-size:20px"><a data-toggle="tab" href="#menu1" style="color:black;font-weight: bold;"> Energy Meter</a></li>
+    <li class="alert alert-info" style="font-size:20px" ><a data-toggle="tab" href="#menu2" style="color:black;font-weight: bold;">Weather Station</a></li>
+    
+  </ul>
+
+  <div class="tab-content ">
+    <div id="home" class="tab-pane active ">
+                            <h4 class="m-2 font-weight-bold text-" style="color:black;">Inverters</h4>
+                            <div class="table-responsive" id="td">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr class="alert alert-info" style="color:#4d0000;font-weight: bold;">
+					                        <th>#</th>
+					                        <th>Inverter</th>
+					                        <th>Inverter Capacity(kW)</th>
+                                            <th>Frequency (Hz)</th>
+                                            
+                                            <th>Active Power (kW)</th>
+                                            <th>Lifetime Generation (kW)</th>
+                                            <th>Today's Energy (kW)</th>
+											<th>Inverter Status</th>
+                                            <th>Last Update</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr class="alert alert-info" style="color:#4d0000;font-weight: bold;">
+					                        <th>#</th>
+					                        <th>Inverter</th>
+					                        <th>Inverter Capacity(kW)</th>
+                                            <th>Frequency (Hz)</th>
+                                            
+                                            <th>Active Power (kW)</th>
+                                            <th>Lifetime Generation (kW)</th>
+                                            <th>Today's Energy (kW)</th>
+											<th>Inverter Status</th>
+                                            <th>Last Update</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+    </div>
+    <div id="menu1" class="tab-pane fade">
+      <h3>Energy Meter</h3>
+	                        <div class="table-responsive" id="td1">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr class="alert alert-info" style="color:#4d0000;font-weight: bold;">
+					                        <th>#</th>
+					                        <th>Phase Voltage 1</th>
+					                        <th>Phase Voltage 2</th>
+                                            <th>Phase Voltage 3</th>
+                                            <th>Phase current 1</th>
+                                            <th>Phase current 2</th>
+                                            <th>Phase current 3</th>
+                                            <th>Active Power</th>
+
+                                        </tr>
+                                    </thead>
+									<tbody>
+									 <tr>
+									 <td class="fas fa-wifi" style="font-size:30px;color:red"></td>
+									 <td>0</td>
+									 <td>0</td>
+									 <td>0</td>
+									 <td>0</td>
+									 <td>0</td>
+									 <td>0</td>
+									 <td>0</td>
+									 
+									 
+									 </tr>
+									
+									</tbody>
+
+                                </table>
+                            </div>
+      
+    </div>
+    <div id="menu2" class="tab-pane fade">
+      <h3>Weather station</h3>
+	  
+	 <div class="row">
+		<div class="col-lg-3 header_margin">
+		
+		 <div class="card border-left-info shadow h-100 py-1" >
+                <div class="row no-gutters align-items-center" style="height:60px">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Module Temperature</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="module_temp">0</div>
+                    </div>
+                    <div class="col mr-4">
+                        <i class="fas fa-temperature-low" style='font-size:30px;color:#ff751a;float:right'></i>
+						
+                    </div>
+
+                </div>
+         </div>
+		
+		</div>
+		
+		<div class="col-lg-3 header_margin">
+		
+		 <div class="card border-left-info shadow h-100 py-1" >
+                <div class="row no-gutters align-items-center" style="height:60px">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Irradiance</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="irradation">0</div>
+
+                    </div>
+                    <div class="col mr-4">
+                        <i class="far fa-sun " id="irr1" data-target="#myModal"data-toggle="modal" style='font-size:30px;color:#ffff1a;float:right'></i>
+						
+						
+							<div class="modal fade" id="myModal" role="dialog">
+                                <div class="modal-dialog">
+    
+                                      <!-- Modal content-->
+                                  <div class="modal-content">
+                                      <div class="modal-header">
+                                         <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                          <h4 class="modal-title"></h4>
+                                      </div>
+                                      <div class="modal-body" id="irr_chart">
+									       <div class="chart-area" style="height:382px;" id="dash_chart_div1">
+                                              <canvas id="dash_chart1"></canvas>
+                                            </div>
+                                         
+                                      </div>
+                                      <div class="modal-footer">
+                                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                       </div>
+                                  </div>
+      
+                                </div>
+                            </div>
+                    </div>
+                </div>
+         </div>
+		
+		</div>
+		
+		<div class="col-lg-3 header_margin">
+		
+		 <div class="card border-left-info shadow h-100 py-1" >
+                <div class="row no-gutters align-items-center" style="height:60px">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Wind Speed</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="Wind_speed">0</div>
+                    </div>
+                    <div class="col mr-4">
+                        <i class="fas fa-wind" style='font-size:30px;color:#b3ffd9;float:right'></i>
+                    </div>
+                </div>
+         </div>
+		
+		</div>
+		
+		<div class="col-lg-3 header_margin">
+		
+		 <div class="card border-left-info shadow h-100 py-1" >
+                <div class="row no-gutters align-items-center" style="height:60px">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Humidity</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="Humidity">0</div>
+                    </div>
+                    <div class="col mr-4">
+                        <i class="fas fa-cloud-sun" style='font-size:30px;color:#ffff33;float:right'></i>
+                    </div>
+                </div>
+         </div>
+		
+		</div>
+		
+		
+		
+	 </div>
+	 
+	 <div class="row">
+	   <div class="col-lg-12 header_margin">
+	    <h3></h3>
+	   </div>
+	 </div>
+	 
+	 <div class="row">
+		<div class="col-lg-3 header_margin">
+		
+		 <div class="card border-left-info shadow h-100 py-1" >
+                <div class="row no-gutters align-items-center" style="height:60px">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Temperature</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="temp">0</div>
+                    </div>
+                    <div class="col mr-4">
+                        <i class="fas fa-temperature-low" style='font-size:30px;color:#ff751a;float:right'></i>
+                    </div>
+                </div>
+         </div>
+		
+		</div>
+		
+		<div class="col-lg-3 header_margin">
+		
+		 <div class="card border-left-info shadow h-100 py-1" >
+                <div class="row no-gutters align-items-center" style="height:60px">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Rain Gauge</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="rain_gauge">0</div>
+                    </div>
+                    <div class="col mr-4">
+                        <i class="fas fa-cloud-sun-rain" style='font-size:30px;color:#66ccff;float:right'></i>
+                    </div>
+                </div>
+         </div>
+		
+		</div>
+		
+		<div class="col-lg-3 header_margin">
+		
+		 <div class="card border-left-info shadow h-100 py-1" >
+                <div class="row no-gutters align-items-center" style="height:60px">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Wind Direction</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="wind_dir">0</div>
+                    </div>
+                    <div class="col mr-4">
+                        <i class="fas fa-arrows-alt" style='font-size:30px;color:#000000;float:right'></i>
+                    </div>
+                </div>
+         </div>
+		
+		</div>
+		
+		<div class="col-lg-3 header_margin">
+		
+		 <div class="card border-left-info shadow h-100 py-1" >
+                <div class="row no-gutters align-items-center"style="height:60px" >
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">more</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="module_temp"></div>
+                    </div>
+                    <div class="col mr-4">
+                        <i class="far fa-lightbulb" style='font-size:30px;color:#ff751a;float:right'></i>
+                    </div>
+                </div>
+         </div>
+		
+	 </div>
+		
+		
+		
+	 </div>
+
+
+
+ 
+ 
+
+  
+    </div>
+
+  </div>
+</div>
+			
+            <!-- End Row Inverter Details Table -->
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+          <div class="container my-auto">
+              <div class="copyright text-center my-auto">
+                  <span>Copyright &copy; Whirlybird 2019</span>
+              </div>
+          </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Logout Modal-->
+  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                  <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">×</span>
+                  </button>
+              </div>
+              <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+              <div class="modal-footer">
+                  <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                  <a class="btn btn-primary" href="login.html">Logout</a>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <script>
+   var invertersPowerArr = {};
+   var invPowerTs = [];
+   var inverterList = [];
+	var sliceinvPowerTs = [];
+	//var sliceinvPowerChartTs=[];
+   var inverterDataStore = null;
+   var siteId = 0;
+   var recordDate = null;
+   var chartToDraw = 1;
+   var invStringTs =[];
+   var invertersCurrentArr = {};
+   var invertersVoltageArr = {};
+   var mpptcount={};
+  </script>
+  
+  <!-- Bootstrap core JavaScript-->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- Core plugin JavaScript-->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <script>
+   $(document).ready( function() {
+       document.getElementById('record_date').valueAsDate = new Date();
+       console.log($('#record_date').val());
+       recordDate = $('#record_date').val();
+   });
+  </script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="vendor/chart.js/Chart.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+  <!-- Page level custom scripts -->
+  <script src="js/demo/datatables-demo.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+  <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+  <script src="js/utils.js"></script>
+  <!-- Page level custom scripts -->
+  <script src="js/demo/chart-bar-demo.js"></script>
+  <script src="js/demo/chart-line.js"></script>
+  <script src="js/demo/chart-line-multiaxis.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/login.js"></script>
+  <script>
+
+   $(document).ready(function() {
+       checkLogin2();
+       siteId = getCookie('siteId');
+       console.log(siteId);
+   });
+
+   jQuery("#draw_ac_power").click(function(e){
+       chartToDraw = 1;
+       console.log('AC Power drawn');
+       getPlantPowerChartData( siteId, recordDate);
+   });
+   jQuery("#draw_ir_acp").click(function(e){
+       chartToDraw = 2;
+       getPowerVsIrradiationChartData( siteId, recordDate );
+   });
+   
+      jQuery("#mppt").click(function(e){
+       chartToDraw = 4;
+	   drawString($('select#inverter_select_pwr').val());
+
+   });
+   
+      jQuery("#irr1").click(function(e){
+       
+       IrradiationChartData( siteId, recordDate );
+   });
+   $(document).ready( function() {
+      getPlantPowerChartData( siteId, recordDate);
+
+       $('.datepicker').datepicker({
+           uiLibrary: 'bootstrap4',
+           autoclose: true,
+           todayHighlight: true,
+           dateFormat: 'yyyy-MM-dd'
+       });
+       getInverterDataFromServer( siteId );
+       getInstantDataFromServer( siteId );
+       getInverterPowerChartData( siteId, recordDate, null, null, false );
+       getDailyEnergyChartData(siteId);
+	   getInverterStringChartData(siteId,recordDate, null, null, false);
+	   console.log("inv list");
+	   console.log(inverterList);
+
+   });
+   $('#inverter_select_pwr').change( function() {
+    console.log("select#inverter_select_pwr")
+	console.log($('select#inverter_select_pwr').val());
+	console.log("chartToDraw");
+	console.log(chartToDraw);
+		if(chartToDraw == 4){
+		  drawString($('select#inverter_select_pwr').val());
+		}
+		else{
+		drawInverterPower($('select#inverter_select_pwr').val());
+		chartToDraw = 3;
+		}
+       
+       //drawInverterPower($('select#inverter_select_pwr').val());
+	   //drawString($('select#inverter_select_pwr').val());
+       
+   });
+     $('#inverter_select').change( function() {
+		    console.log("select#inverter_select_pwr")
+       console.log($('select#inverter_select_pwr').val());
+	   //drawString($('select#inverter_select_pwr').val());
+       //chartToDraw = 3;
+   });
+   
+   $('#record_date').change( function() {
+       console.log($('#record_date').val());
+       recordDate = $('#record_date').val();
+       if(chartToDraw == 1) {
+           getPlantPowerChartData( siteId, recordDate);
+       } else if (chartToDraw == 2) {
+           getPowerVsIrradiationChartData( siteId, recordDate );
+       } else if (chartToDraw == 3) {
+           getInverterPowerChartData( siteId, recordDate,  drawInverterPower, $('select#inverter_select_pwr').val(), true);
+       } else if (chartToDraw == 4) {
+           getInverterStringChartData( siteId, recordDate,  drawString, $('select#inverter_select_pwr').val(), true);
+       }
+   });
+   
+
+   //$(document).ready(function() {  drawInverterPower($('#record_date').val());    });
+
+   $(document).ready(function() {
+      
+	     function reloadAjax() {
+						 //$("#td").empty(); 
+						//$("#dataTable").dataTable();
+		       getInverterDataFromServer( siteId );
+			   getInstantDataFromServer( siteId );
+		       getDailyEnergyChartData(siteId);
+			   
+		       if(chartToDraw == 1) {
+           		 getPlantPowerChartData( siteId, recordDate);
+       		 } else if (chartToDraw == 2) {
+           		 getPowerVsIrradiationChartData( siteId, recordDate );
+       		 } else if (chartToDraw == 3) {
+           		 getInverterPowerChartData( siteId, recordDate,  drawInverterPower, $('select#inverter_select_pwr').val(), true);
+       		 } else if (chartToDraw == 4) {
+           		 getInverterStringChartData( siteId, recordDate,  drawString, $('select#inverter_select_pwr').val(), true);
+       		 }
+			 
+
+		       setTimeout(reloadAjax, 500000);
+	     }
+		
+	     setTimeout(reloadAjax, 500000);
+   });
+
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+</body>
+
+</html>
+
+
+
+
+
+
+

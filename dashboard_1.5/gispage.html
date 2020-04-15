@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Plant List</title>
+
+  <!-- Custom fonts for this template-->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin-2.min.css" rel="stylesheet">
+  <!-- Custom styles for this page -->
+  <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+  <style>
+      
+       /* Set the size of the div element that contains the map */
+      #map {
+        height: 400px;  /* The height is 400 pixels */
+        width: 100%;  /* The width is the width of the web page */
+       }
+    
+  </style>
+   
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script>
+
+
+
+
+
+var data="";
+
+function myFunction(callback) {
+
+let today = new Date();
+console.log("new date");
+console.log(today);
+//var n = today.getTime();
+//console.log(n);
+let date = today.getFullYear()+'-'+("0" + (today.getMonth()+1)).slice(-2)+'-'+("0" + today.getDate()).slice(-2);
+let time = today.getHours() + ":" + ("0" + today.getMinutes()).slice(-2) + ":" + "00";
+let dateTime = date+' '+time; 
+console.log(" today date time");
+ console.log(dateTime);
+ callback();
+return dateTime;
+
+
+}
+
+			function alarmdata(siteid) {
+			$("#table").dataTable().fnDestroy();
+			let xhr = new XMLHttpRequest();
+			let url = 'http://13.233.236.200:5000/solaralarms?site_id='+siteid;
+			console.log(url);
+			xhr.open("GET", url);
+			xhr.send();
+
+			xhr.onload = () => populateData(xhr.response);
+			
+			
+		     }
+			 
+			 function populateData(response){
+			 
+			 alarmdatad = JSON.parse( response );
+
+			 console.log("alarmdatad");
+			console.log(alarmdatad);
+			 if(Array.isArray(alarmdatad) && alarmdatad.length){
+			  //console.log(alarmdatad);
+			  //alert("alarm type is");
+		      //alert(alarmdatad[0].alarm_name);
+			  document.getElementById("mb").innerHTML = "Type is "+" "+ alarmdatad[0].alarm_name+" "+"Generated on"+" " + alarmdatad[0].open_time + " "+"From Inverter "+ alarmdatad[0].controller_id ;
+			 }
+			 }
+
+
+function getSiteList( ) {
+
+    var xhr = new XMLHttpRequest();
+    let user = getCookie('user');
+    console.log(user);
+    xhr.addEventListener("readystatechange", function() {
+        if(this.readyState === 4) {
+            console.log(this.responseText);
+            drawPlantTable(this.responseText);
+        }
+    });
+	let url ="http://13.233.236.200:5000/getSiteList?user="+user
+    xhr.open("GET", url);
+	console.log(url);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.send();
+
+}
+
+
+function setSiteId(siteId) {
+    setCookie('siteId', siteId, 1);
+    window.location.href = "index.html";
+}
+
+
+
+
+
+function drawPlantTable( inputdata ) {
+let today = new Date();
+console.log("new date");
+console.log(today);
+
+let date = today.getFullYear()+'-'+("0" + (today.getMonth()+1)).slice(-2)+'-'+("0" + today.getDate()).slice(-2);
+let time = today.getHours() + ":" + ("0" + today.getMinutes()).slice(-2) + ":" + "00";
+let dateTime = date+' '+time; 
+console.log(" today date time");
+ console.log(dateTime);
+	let current_time =  dateTime;
+	current_time = new Date(current_time);
+	current_time = current_time.getTime();
+	console.log(current_time);
+    data = JSON.parse(inputdata);
+	console.log("data");
+	let a,y,z,b,c,d ="";
+	let p="";
+
+	for(let i in data.site_list){
+	 c=data.site_list[i].site_name;
+	 a=data.site_list[i].plant_capacity;
+	 y=data.site_list[i].today_energy;
+	 z=data.site_list[i].p_pr.toFixed(2);
+	 b=data.site_list[i].update_time;
+	 d=data.site_list[i].alarms;
+
+	 let inverter_time = new Date(b);
+	  inverter_time = inverter_time.getTime();
+	 	console.log(" time comparsion");
+		console.log(current_time);
+		console.log(inverter_time);
+		let diff =(current_time - inverter_time);
+	 if(diff < 2100000){
+		if(d==0 && Array.isArray(alarmdatad) && alarmdatad.length){
+		
+			// prompt("alert type is:",c);
+	
+	      p += "<tr><td>"+'<i class="fas fa-wifi" style="font-size:20px;color:green"></i>' + "</td>"+"<td id='list' class='alert alert-warning'><a href='#' onclick='setSiteId("+data.site_list[i].site_id+")'>"+c+"</a></td>"+"<td>"+a+' '+'kW'+"</td>"+"<td>"+y+' '+'KWh'+"</td>"+"<td>"+z+"</td>"+"<td> "+'1'+'<i class="far fa-bell"  id="alarm" data-target="#myModal"data-toggle="modal"  style="font-size:15px;color:red"></i>'+"</td>"+"<td style='font-size:13px'>"+b+"</tr><td>";
+	   }
+	   else{
+		
+		p += "<tr><td>"+'<i class="fas fa-wifi" style="font-size:20px;color:green"></i>' + "</td>"+"<td id='list' class='alert alert-warning'><a href='#' onclick='setSiteId("+data.site_list[i].site_id+")'>"+c+"</a></td>"+"<td>"+a+' '+'kW'+"</td>"+"<td>"+y+' '+'KWh'+"</td>"+"<td>"+z+"</td>"+"<td>"+d+'<i class="far fa-bell" data-target="#myModal"data-toggle="modal" style="font-size:15px;color:green"></i>'+"</td>"+"<td style='font-size:13px'>"+b+"</tr><td>";
+	   }
+	 }
+	 
+	else{
+	   if(d==0 && Array.isArray(alarmdatad) && alarmdatad.length){
+		p += "<tr><td>"+'<i class="fas fa-wifi" style="font-size:20px;color:red"></i>' + "</td>"+"<td id='list' class='alert alert-warning'><a href='#' onclick='setSiteId("+data.site_list[i].site_id+")'>"+c+"</a></td>"+"<td>"+a+' '+'kW'+"</td>"+"<td>"+y+' '+'KWh'+"</td>"+"<td>"+z+"</td>"+"<td>"+'1'+'<i class="far fa-bell" data-target="#myModal"data-toggle="modal" style="font-size:15px;color:red"></i>'+"</td>"+"<td style='font-size:13px'>"+b+"</tr><td>";
+	  }
+	  else{
+		 
+		p += "<tr><td>"+'<i class="fas fa-wifi" style="font-size:20px;color:red"></i>' + "</td>"+"<td id='list' class='alert alert-warning'><a href='#' onclick='setSiteId("+data.site_list[i].site_id+")'>"+c+"</a></td>"+"<td>"+a+' '+'kW'+"</td>"+"<td>"+y+' '+'KWh'+"</td>"+"<td>"+z+"</td>"+"<td>"+d+'<i class="far fa-bell" data-target="#myModal"data-toggle="modal" style="font-size:15px;color:green"></i>'+"</td>"+"<td style='font-size:13px'>"+b+"</tr><td>";
+	  }
+	 
+	 }
+	 
+	 
+	 
+	 
+	}
+	document.getElementById('tabledata1').innerHTML = p;
+    /*
+    let dataTable = "";
+    dataTable += "<table class='table table-striped'><thead class='thead-blue'>";
+    dataTable += "<tr><th>#</th><th>Plant Name</th><th>Capacity</th><th>Todays Energy</th><th>CUF (%)</th><th>Last Update</th></tr></thead>";
+    dataTable += "<tbody>";
+    let tbody = "<tbody id='tb'>";
+
+    for(let i in data.site_list) {
+		
+        tbody += "<tr>";
+
+        tbody += "<td>"+'<i class="far fa-bell" style="font-size:25px;color:green"></i>'+"</td>";
+        tbody += "<td><a href='#' onclick='setSiteId("+data.site_list[i].site_id+")'>" + data.site_list[i].site_name +"</a></td>";
+        tbody += "<td>"+ data.site_list[i].plant_capacity +"KW </td>";
+        tbody += "<td>"+ data.site_list[i].today_energy +"</td>";
+        tbody += "<td>"+ data.site_list[i].cuf*100 +"</td>";
+		tbody += "<td style='font-size:13px'>"+ data.site_list[i].update_time +"</td>";
+
+        tbody += "</tr>";
+    }
+
+    tbody += "</tbody>";
+    dataTable += tbody;
+    dataTable += "</tbody></table>";
+*/
+    //document.getElementById('planttable').innerHTML = dataTable;
+
+}
+
+
+
+
+
+</script>
+
+</head>
+
+<body id="page-top" style="height:100%;">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper" style="min-height:100vh;">
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column" style="min-height:100vh;">
+
+      <!-- Main Content -->
+      <div id="content" style="min-height:90vh;">
+
+        <!-- Topbar -->
+          <nav class="navbar navbar-expand-sm bg-dark navbar-dark" >
+		          <!-- Brand/logo -->
+		          <a class="navbar-brand" href="#">
+			            <a class="navbar-brand" href="#" style="color:#ff0000;  font-size:150%; font-family:terminator">WHIRLYBIRD</a>
+		          </a>
+
+		          </ul>
+              <ul class="nav navbar-nav ml-auto">
+                  
+                  <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i></span>Logout</a></li>
+              </ul>
+	        </nav>
+
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid" style="min-height:80vh;">
+									<div class="modal fade" id="myModal" role="dialog">
+                                <div class="modal-dialog">
+    
+                                      <!-- Modal content-->
+                                  <div class="modal-content">
+                                      <div class="modal-header">
+                                         <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                          <h4 class="modal-title"></h4>
+                                      </div>
+									        <div  id="alarm_type" class="modal-body">
+												alarm is
+												<p id="mb"> </p>
+											</div>
+
+                                      <div class="modal-footer">
+                                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                       </div>
+                                  </div>
+      
+                                </div>
+                            </div>
+		
+            <div class="row" style="min-height:80vh;">
+                <!-- Start of MAP -->
+                <div class="col-lg-5" style="min-height:100%; margin-top:20px;">
+                   
+                        
+							<div id="map" style="min-height:100%;" ></div>
+                        
+                   
+                </div>
+                    <!-- End of MAP -->
+
+                <!-- Start of Site List -->
+                <div class="col-lg-7" style="min-height:100%; margin-top:20px;">
+                    <div class="card mb-4" style="min-height:100%;">
+                        <div class="card-header " style="font-size:15px;color:black;font-weight: bold;">
+                            Plants
+					    <input type="text" placeholder="Search sites.."  id="mySearch"  onkeyup="myFunction()" name="search" style="float:right">
+                        
+                        </div>
+                        
+						<table class="table table-striped" id="myTable">
+                            <thead class="alert alert-info" >
+                                <tr >
+                                    <th style="font-size:15px;font-weight: bold;color:#4d0000">#</th>
+		                            <th style="font-size:15px;font-weight: bold;color:#4d0000">Plant Name</th>
+		                            <th style="font-size:15px;font-weight: bold;color:#4d0000">Capacity</th>
+		                            <th style="font-size:15px;font-weight: bold;color:#4d0000">Today's </br>Energy</th>
+                                    <th style="font-size:15px;font-weight: bold;color:#4d0000">PR</th>
+									<th style="font-size:15px;font-weight: bold;color:#4d0000">Alarms</th>
+									<th style="font-size:15px;font-weight: bold;color:#4d0000">Last Update</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabledata1">
+                                <tr>
+								<td ></td>
+	                                <td id="plantname"></td>
+		                            <td id="Capacity"></td>
+		                            <td id="energy"></td>
+                                    <td id="cuf"></td>
+									<td id="update"></td>   
+	                            </tr>
+
+	                              
+                            </tbody>
+                        </table>
+                            
+                        
+                    </div>
+                    
+                </div>
+                <!-- End of Site List -->
+            </div>
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+          <div class="container my-auto">
+              <div class="copyright text-center my-auto">
+                  <span>Copyright &copy; Whirlybird 2019</span>
+              </div>
+          </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Logout Modal-->
+  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                  <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">×</span>
+                  </button>
+              </div>
+              <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+              <div class="modal-footer">
+                  <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                  <a class="btn btn-primary" href="login.html">Logout</a>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- Core plugin JavaScript-->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+
+  <!-- Custom scripts for all pages-->
+  <script src="js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="vendor/chart.js/Chart.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+  <!-- Page level custom scripts -->
+  <script src="js/demo/datatables-demo.js"></script>
+
+  <script src="js/utils.js"></script>
+  <!-- Page level custom scripts -->
+  <script src="js/login.js"></script>
+
+
+  
+  <script>
+  
+    jQuery("#myModal").click(function(e){
+	console.log(" on click");
+	 if(Array.isArray(alarmdatad) && alarmdatad.lengths){
+	 console.log(" condition");
+       document.getElementByClass("modal-body").innerHTML = "<p>"+alarmdatad[0].alarm_name+" "+alarmdatad[0].open_time + " "+ alarmdatad[0].controller_id + "</p>";
+		}
+   });
+  
+  
+  $(document).ready(function(){
+  $('[data-toggle="popover"]').popover();   
+});
+   $(document).ready(function() {
+      checkLogin2();
+      getSiteList();
+	  alarmdata(1)
+	  console.log(data);
+	  myFunction();
+	  console.log("value");
+	  var alarmdatad =[];
+
+
+	  //console.log(document.getElementById("tabledata1").value);
+   });
+   
+   
+function myFunction() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("mySearch");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[1];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+
+function initMap() {
+  // The location of Uluru
+  var uluru = {lat: 31.3534, lng: 75.4587};
+  // The map, centered at Uluru
+  var map = new google.maps.Map(
+      document.getElementById('map'), {zoom: 5, center: uluru});
+  // The marker, positioned at Uluru
+  var marker = new google.maps.Marker({position: uluru, map: map});
+}
+
+
+
+
+  </script>
+ <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXYpREyNuE-iSCo3lsntK0BCFoOE3C8II&callback=initMap">
+ </script>
+
+</body>
+
+</html>
+
+
+
+
